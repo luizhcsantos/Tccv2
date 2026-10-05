@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.datasets import load_iris, load_wine, load_breast_cancer
+from sklearn.datasets import load_iris, load_wine, load_breast_cancer, load_digits
 from sklearn.preprocessing import StandardScaler
 
 def prepare_dataset(data, target, feature_names=None,
@@ -49,6 +49,13 @@ def carregar_datasets():
         breast_cancer.data,
         breast_cancer.target,
         breast_cancer.feature_names
+    )
+
+    digits = load_digits()
+    datasets["digits"] = prepare_dataset(
+        digits.data,
+        digits.target,
+        digits.feature_names
     )
 
     return datasets
