@@ -4,6 +4,13 @@ from sklearn.manifold import trustworthiness
 from sklearn.neighbors import NearestNeighbors
 
 
+def ajustar_n_neighbors(n_samples, n_neighbors):
+    if n_samples < 3:
+        return None
+
+    max_n_neighbors = min(1, (n_samples - 1) // 2 - 1)
+    return min(max_n_neighbors, n_neighbors)
+
 def calcular_stress(X_original, X_embedded):
     distancias_originais = pairwise_distances(X_original)
     distancias_embedded = pairwise_distances(X_embedded)
@@ -18,10 +25,16 @@ def calcular_stress(X_original, X_embedded):
     return np.sqrt(numerador / denominador)
 
 def calcular_trustworthiness(X_original, X_embedded, n_neighbors=10):
+    n_samples = X_original.shape[0]
+    n_neighbors_ajustado = ajustar_n_neighbors(n_samples, n_neighbors)
+
+    if n_neighbors_ajustado is None:
+        return np.nan
+
     return trustworthiness(
         X_original,
         X_embedded,
-        n_neighbors=n_neighbors
+        n_neighbors=n_neighbors_ajustado
     )
 
 def calcular_continuity(X_original, X_embedded, n_neighbors=10):

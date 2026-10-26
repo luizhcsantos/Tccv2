@@ -16,9 +16,11 @@ def apply_pca(X, random_state=42):
 
 
 def apply_tsne(X, random_state=42):
+    perplexity = min(30, max(5, (X.shape[0] - 1) // 3))
+
     model = TSNE(
         n_components=2,
-        perplexity=30,
+        perplexity=perplexity,
         learning_rate="auto",
         init="pca",
         random_state=random_state)
@@ -36,9 +38,12 @@ def apply_mds(X, random_state=42):
 def apply_umap(X, random_state=42):
     if umap is None:
         raise ImportError("O pacote 'umap-learn' não está instalado.")
+
+    n_neighbors = min(15, max(2, X.shape[0] - 1))
+
     model = umap.UMAP(
         n_components=2,
-        n_neighbors=2,
+        n_neighbors=n_neighbors,
         min_dist=0.1,
         random_state=random_state)
     return model.fit_transform(X)
