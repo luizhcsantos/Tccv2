@@ -5,7 +5,7 @@ import pandas as pd
 from datasets_loader import carregar_dataset, carregar_datasets, listar_datasets
 from reducers import run_reducer
 from metrics import calcular_metricas
-from visualization import plot_embedding, plot_embeddings_matrix
+from visualization import plot_embedding, plot_embeddings_matrix, plot_embeddings_matrices_by_group
 
 TECNICAS_DISPONIVEIS = [
     "PCA",
@@ -13,6 +13,28 @@ TECNICAS_DISPONIVEIS = [
     "MDS",
     "UMAP"
 ]
+
+DATASET_GROUPS = {
+    "sklearn_classicos": [
+        "iris",
+        "wine",
+        "breast_cancer",
+        "digits"
+    ],
+    "imagens": [
+        "fashion_mnist",
+        "orl_faces"
+    ],
+    "tabulares_sinais": [
+        "bank_marketing",
+        "seizure"
+    ],
+    "textos": [
+        "spam",
+        "hate_speech",
+        "sentiment"
+    ]
+}
 
 def executar_experimento(dataset_name, X, y, tecnicas, random_state, n_neighbors):
     resultados = []
@@ -233,7 +255,14 @@ def main():
 
     plot_embeddings_matrix(
         todos_embeddings,
-        output_path="results/figures/comparacao_matriz.png"
+        output_path="results/figures/comparacao_matriz.png",
+        title="Comparação visual geral das técnicas de redução de dimensionalidade"
+    )
+
+    plot_embeddings_matrices_by_group(
+        todos_embeddings,
+        DATASET_GROUPS,
+        output_dir="results/figures"
     )
 
     print("\nExperimentos concluídos.")
