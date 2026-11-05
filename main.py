@@ -5,7 +5,7 @@ import pandas as pd
 from datasets_loader import carregar_dataset, carregar_datasets, listar_datasets
 from reducers import run_reducer
 from metrics import calcular_metricas
-from visualization import plot_embedding
+from visualization import plot_embedding, plot_embeddings_matrix
 
 TECNICAS_DISPONIVEIS = [
     "PCA",
@@ -16,6 +16,7 @@ TECNICAS_DISPONIVEIS = [
 
 def executar_experimento(dataset_name, X, y, tecnicas, random_state, n_neighbors):
     resultados = []
+    embeddings_results = []
 
     print(f"\nDataset: {dataset_name}")
     print(f"Amostras: {X.shape[0]}")
@@ -65,6 +66,13 @@ def executar_experimento(dataset_name, X, y, tecnicas, random_state, n_neighbors
                 nome_tecnica
             )
 
+            embeddings_results.append({
+                "dataset": dataset_name,
+                "technique": nome_tecnica,
+                "embedding": embedding,
+                "labels": y,
+            })
+
             result = {
                 "dataset": dataset_name,
                 "technique": nome_tecnica,
@@ -100,7 +108,7 @@ def executar_experimento(dataset_name, X, y, tecnicas, random_state, n_neighbors
                 "error": str(error)
             })
 
-    return resultados
+    return resultados, embeddings_results
 
 
 def salvar_resultados(resultados, output_file):
@@ -182,6 +190,7 @@ def main():
         tecnicas = [args.technique]
 
     resultados = []
+    todos_embeddings = []
 
     if args.dataset == "all":
         datasets = carregar_datasets(
@@ -190,7 +199,7 @@ def main():
         )
 
         for dataset_name, (X, y) in datasets.items():
-            resultados_dataset = executar_experimento(
+            resultados_dataset, embeddings_dataset = executar_experimento(
                 dataset_name,
                 X,
                 y,
@@ -200,6 +209,7 @@ def main():
             )
 
             resultados.extend(resultados_dataset)
+            todos_embeddings.extend(embeddings_dataset)
             salvar_resultados(resultados_dataset, args.output)
 
     else:
@@ -209,7 +219,7 @@ def main():
             random_state=args.random_state
         )
 
-        resultados = executar_experimento(
+        resultados, embeddings_dataset = executar_experimento(
             args.dataset,
             X,
             y,
@@ -218,7 +228,13 @@ def main():
             args.n_neighbors
         )
 
+        todos_embeddings.extend(embeddings_dataset)
         salvar_resultados(resultados, args.output)
+
+    plot_embeddings_matrix(
+        todos_embeddings,
+        output_path="results/figures/comparacao_matriz.png"
+    )
 
     print("\nExperimentos concluídos.")
     print(f"Resultados salvos em: {args.output}")
